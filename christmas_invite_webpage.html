@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mink Pleno Village — Christmas Invitation</title>
+  <style>
+    :root{--card-bg:#fff7ee;--accent:#c43a2f;--green:#2e8b57;--muted:#6b6b6b}
+    *{box-sizing:border-box}
+    body{font-family: "Sarabun", system-ui, -apple-system, "Helvetica Neue", Arial; background:linear-gradient(180deg,#fbfaf8,#f3f0ec);margin:0;padding:24px;display:flex;justify-content:center}
+    .wrap{width:100%;max-width:680px}
+    .card{background:var(--card-bg);border-radius:16px;padding:28px;box-shadow:0 8px 30px rgba(18,18,18,0.08);}
+    header{display:flex;align-items:center;gap:12px}
+    .tree{width:64px;height:64px;flex:0 0 64px}
+    h1{margin:0;color:var(--accent);font-size:32px}
+    .sub{color:var(--green);font-weight:700;margin-top:6px}
+    p{color:var(--muted);line-height:1.6}
+    .meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+    .meta .item{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.03);padding:8px 12px;border-radius:10px}
+
+    ul.activities{padding-left:20px;margin:12px 0}
+
+    .actions{display:flex;gap:14px;margin-top:18px}
+    .btn{flex:1;padding:12px;border-radius:12px;text-align:center;text-decoration:none;color:white;font-weight:700;cursor:pointer;user-select:none}
+    .btn.accept{background:var(--green)}
+    .btn.decline{background:#d9534f}
+    .note{margin-top:18px;padding:14px;border-radius:12px;background:rgba(0,0,0,0.02);text-align:center}
+
+    /* QR section */
+    .qr-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:60}
+    .qr-card{background:white;padding:20px;border-radius:12px;max-width:420px;width:92%;text-align:center}
+    .qr-card img{max-width:220px}
+    .field{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:12px}
+    .field input{padding:8px;border-radius:8px;border:1px solid #eee;width:140px}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Admin panel */
+    .admin-bar{display:flex;justify-content:flex-end;margin-top:12px}
+    .admin-panel{display:none;margin-top:12px;background:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;border-bottom:1px solid #f0f0f0;text-align:left;font-size:14px}
+    th{background:transparent;color:var(--muted);font-weight:700}
+
+    /* responsive */
+    @media (max-width:520px){h1{font-size:26px}.actions{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="inviteCard">
+      <header>
+        <svg class="tree" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden><g fill="#2f8b3a"><rect width="64" height="64" fill="none"/></g><g><path d="M32 6l-8 10h5v6h6v-6h5z" fill="#2f8b3a"/><path d="M10 34c5-2 7-4 14-4s9 2 14 4 9 1 14 0c-6 7-20 6-28 6s-22 2-28-6c5 1 9 2 14 0z" fill="#2f8b3a"/></g></svg>
+        <div>
+          <h1>Mink Pleno Village</h1>
+          <div class="sub">Christmas Celebration Party 2024</div>
+        </div>
+      </header>
+
+      <p>ขอเชิญชวนชาว Mink Pleno Village มาร่วมเฉลิมฉลองงานคริสต์มาสสุดอบอุ่นด้วยกัน ❤️</p>
+
+      <div class="meta">
+        <div class="item">📅 25 ธันวาคม 2024</div>
+        <div class="item">🕒 18:00 – 22:00 น.</div>
+        <div class="item">📍 (กรอกสถานที่)</div>
+      </div>
+
+      <p class="small" style="margin-top:12px">ภายในงานมีกิจกรรม:</p>
+      <ul class="activities">
+        <li>แลกของขวัญคริสต์มาส</li>
+        <li>เล่นเกมลุ้นรับรางวัล</li>
+        <li>มื้ออาหารพิเศษ</li>
+        <li>มุมถ่ายรูปธีมคริสต์มาส</li>
+      </ul>
+
+      <div class="actions">
+        <div class="btn accept" id="btnAccept">✔️ เข้าร่วม</div>
+        <div class="btn decline" id="btnDecline">✖️ ไม่สะดวกเข้าร่วม</div>
+      </div>
+
+      <div class="note">
+        ขอบคุณที่ตอบรับเข้าร่วมงาน! กรุณาชำระค่าร่วมกิจกรรมผ่าน QR ด้านล่าง (ถ้ามี)
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button id="adminBtn" style="background:transparent;border:0;color:var(--muted);cursor:pointer">🔒 Admin</button>
+      </div>
+
+      <div class="admin-panel" id="adminPanel">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+          <strong>รายการตอบรับ (เก็บในเบราว์เซอร์)</strong>
+          <div>
+            <button id="exportCsv">ดาวน์โหลด CSV</button>
+            <button id="clearAll">ลบทั้งหมด</button>
+          </div>
+        </div>
+        <table id="respTable"><thead><tr><th>เวลา</th><th>ชื่อ</th><th>ติดต่อ</th><th>คำตอบ</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Modal / Acceptance form -->
+  <div class="qr-modal" id="qrModal">
+    <div class="qr-card">
+      <h3 id="qrTitle">ขอบคุณที่เข้าร่วม!</h3>
+      <p class="small">กรุณากรอกชื่อและช่องทางติดต่อ แล้วสแกน QR เพื่อชำระค่าร่วมกิจกรรม</p>
+
+      <div style="margin-top:12px">
+        <input id="inputName" placeholder="ชื่อ-นามสกุล" style="width:80%;padding:10px;border-radius:8px;border:1px solid #eee" />
+      </div>
+      <div style="margin-top:8px">
+        <input id="inputContact" placeholder="เบอร์โทรหรืออีเมล (ไม่บังคับ)" style="width:80%;padding:10px;border-radius:8px;border:1px solid #eee" />
+      </div>
+
+      <div class="field">
+        <div style="text-align:center">
+          <!-- Replace src with your real QR image (PromptPay / TrueMoney / Bank) -->
+          <img id="qrImage" src="data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'220\' height=\'220\'><rect width=\'100%\' height=\'100%\' fill=\'%23ffffff\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23cccccc\' font-size=\'14\'>QR_PLACEHOLDER</text></svg>" alt="QR code" />
+          <div class="small" style="margin-top:8px">ยอด: <input id="amount" placeholder="จำนวนเงิน (บาท)" style="width:80px;padding:6px;border-radius:6px;border:1px solid #eee" /></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+        <button id="confirmJoin" style="padding:10px 14px;border-radius:8px;background:var(--green);color:white;border:0;">ยืนยัน</button>
+        <button id="cancelJoin" style="padding:10px 14px;border-radius:8px;background:#ddd;border:0;">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decline modal -->
+  <div class="qr-modal" id="declineModal">
+    <div class="qr-card">
+      <h3>ขอบคุณที่ตอบกลับ</h3>
+      <p class="small">ถ้าต้องการแจ้งเหตุผล (ไม่บังคับ) </p>
+      <input id="declineName" placeholder="ชื่อ-นามสกุล (ถ้าต้องการ)" style="width:80%;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:8px" />
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+        <button id="confirmDecline" style="padding:10px 14px;border-radius:8px;background:#d9534f;color:white;border:0;">ส่งคำตอบ</button>
+        <button id="cancelDecline" style="padding:10px 14px;border-radius:8px;background:#ddd;border:0;">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple storage key
+    const STORAGE_KEY = 'mink_pleno_responses_v1';
+
+    function loadResponses(){
+      try{const raw = localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):[] }catch(e){return[]}
+    }
+    function saveResponses(arr){ localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+
+    function addResponse(obj){ const arr = loadResponses(); arr.push(obj); saveResponses(arr); renderTable(); }
+
+    function renderTable(){
+      const tbody = document.querySelector('#respTable tbody'); tbody.innerHTML='';
+      const arr = loadResponses().slice().reverse();
+      for(const r of arr){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(r.ts).toLocaleString('th-TH')}</td><td>${r.name||'-'}</td><td>${r.contact||'-'}</td><td>${r.answer}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Buttons
+    document.getElementById('btnAccept').addEventListener('click',()=>{
+      document.getElementById('qrModal').style.display='flex';
+    });
+    document.getElementById('cancelJoin').addEventListener('click',()=>{document.getElementById('qrModal').style.display='none'});
+
+    document.getElementById('confirmJoin').addEventListener('click',()=>{
+      const name = document.getElementById('inputName').value.trim();
+      const contact = document.getElementById('inputContact').value.trim();
+      const amount = document.getElementById('amount').value.trim();
+      // Save record
+      addResponse({ts:Date.now(),name,contact,amount,answer:'เข้าร่วม'});
+      alert('บันทึกคำตอบเรียบร้อยค่ะ
+โปรดสแกน QR เพื่อชำระค่าร่วมกิจกรรม');
+      document.getElementById('qrModal').style.display='none';
+      // optionally open larger QR / payment link in new tab if you provide one
+    });
+
+    // Decline
+    document.getElementById('btnDecline').addEventListener('click',()=>{document.getElementById('declineModal').style.display='flex'});
+    document.getElementById('cancelDecline').addEventListener('click',()=>{document.getElementById('declineModal').style.display='none'});
+    document.getElementById('confirmDecline').addEventListener('click',()=>{
+      const name = document.getElementById('declineName').value.trim();
+      addResponse({ts:Date.now(),name,contact:'',answer:'ไม่สะดวก'});
+      alert('บันทึกคำตอบเรียบร้อย ขอบคุณค่ะ');
+      document.getElementById('declineModal').style.display='none';
+    });
+
+    // Admin
+    document.getElementById('adminBtn').addEventListener('click',async ()=>{
+      const pass = prompt('กรุณาใส่รหัสผู้ดูแล (รหัสเริ่มต้น: admin123)');
+      if(pass === 'admin123'){
+        document.getElementById('adminPanel').style.display = 'block';
+        renderTable();
+      } else if(pass!==null){ alert('รหัสไม่ถูกต้อง'); }
+    });
+
+    document.getElementById('exportCsv').addEventListener('click',()=>{
+      const arr = loadResponses();
+      if(!arr.length){ alert('ไม่มีข้อมูลให้ดาวน์โหลด'); return }
+      const header = ['timestamp','name','contact','amount','answer'];
+      const rows = arr.map(r=>[new Date(r.ts).toISOString(), (r.name||''), (r.contact||''), (r.amount||''), r.answer||''].map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(','));
+      const csv = header.join(',') + '
+' + rows.join('
+');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'mink_pleno_responses.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('clearAll').addEventListener('click',()=>{
+      if(confirm('คุณแน่ใจว่าจะลบข้อมูลทั้งหมด?')){ localStorage.removeItem(STORAGE_KEY); renderTable(); alert('ลบข้อมูลเรียบร้อย'); }
+    });
+
+    // Initialize
+    renderTable();
+
+    // Optional: allow setting QR by URL query: ?qr=BASE64URLENCODED or ?qrimg=https://...
+    (function applyQueryQR(){
+      try{
+        const qp = new URLSearchParams(location.search);
+        const qrImg = qp.get('qrimg');
+        if(qrImg) document.getElementById('qrImage').src = decodeURIComponent(qrImg);
+        const amount = qp.get('amount'); if(amount) document.getElementById('amount').value = amount;
+        const place = qp.get('place'); if(place) document.querySelector('.meta .item:nth-child(3)').textContent = '📍 '+decodeURIComponent(place);
+      }catch(e){console.log(e)}
+    })();
+  </script>
+  <!-- QR Page -->
+  <div id="qr-page" style="display:none; text-align:center; padding:20px;">
+    <h2>สแกน QR เพื่อชำระเงิน</h2>
+    <img src="S__21266437.jpg" alt="QR Payment" style="max-width:260px; border-radius:12px;" />
+  </div>
+</body>
+</html>
